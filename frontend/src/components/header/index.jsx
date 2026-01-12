@@ -40,6 +40,8 @@ export default function Header({ cartCount, onCategorySelect, selectedCategory, 
         return digits;
     }
 
+    const [locationName, setLocationName] = useState('Detecting location...');
+
     useEffect(() => {
         const fetchCategoriesData = async () => {
             try {
@@ -61,6 +63,41 @@ export default function Header({ cartCount, onCategorySelect, selectedCategory, 
             } catch (e) {
                 console.error("Failed to parse user data");
             }
+        }
+
+        // Location Detection
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(async (position) => {
+                const { latitude, longitude } = position.coords;
+                try {
+                    const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+                    if (!apiKey) {
+                        console.warn("Google Maps API Key not found in env");
+                        setLocationName("Location API Key Missing");
+                        return;
+                    }
+
+                    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`);
+                    const data = await response.json();
+
+                    if (data.status === 'OK' && data.results.length > 0) {
+                        // Use the first result's formatted address
+                        // Or try to construct a shorter one if needed. using formatted_address for now.
+                        setLocationName(data.results[0].formatted_address);
+                    } else {
+                        setLocationName("Location not found");
+                    }
+                } catch (error) {
+                    console.error("Error fetching address:", error);
+                    setLocationName("Location Error");
+                }
+            }, (error) => {
+                console.warn("Geolocation permission denied or error:", error);
+                // Fallback or keep 'Detecting...' or set specific message
+                // Maybe default to a generic location or keep static as previous if permission denied?
+                // User asked to "integrate user login location auto deduction", imply replacing static.
+                setLocationName("Select Location");
+            });
         }
     }, []);
 
@@ -107,7 +144,7 @@ export default function Header({ cartCount, onCategorySelect, selectedCategory, 
                                 <span className="font-extrabold text-sm text-gray-900">10 minutes</span>
                             </div>
                             <div className="flex items-center gap-1 text-xs text-gray-500 cursor-pointer hover:text-indigo-600 transition-colors">
-                                <span className="truncate max-w-[150px]">Home - 123, Green Park, New Delhi...</span>
+                                <span className="truncate max-w-[150px]" title={locationName}>{locationName}</span>
                                 <ChevronDownIcon />
                             </div>
                         </div>

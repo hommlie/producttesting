@@ -6,7 +6,7 @@ async function createOtp(phone, otp, expiryMinutes = 3) {
     [phone, otp, expiryMinutes]
   );
   try {
-    console.log(`createOtp: inserted id=${result.insertId} phone=${phone} otp_len=${String(otp).length}`);
+    // console.log(`createOtp: inserted id=${result.insertId} phone=${phone} otp_len=${String(otp).length}`);
   } catch (e) {
     // ignore logging errors
   }

@@ -64,7 +64,7 @@ async function sendOtp(req, res) {
         };
         const headers = { 'Content-Type': 'application/json', 'authkey': SMS_CONFIG.msg91AuthKey };
         const resp = await axios.post(msg91Url, body, { headers });
-        console.log('MSG91 template response:', resp.data);
+        // console.log('MSG91 template response:', resp.data);
         const respData = resp.data || {};
         const returnedOtp = respData.otp || respData.otp_code || respData.response?.otp || respData?.data?.otp;
         if (returnedOtp) await updateOtpById(otpId, String(returnedOtp));
@@ -92,12 +92,12 @@ async function sendOtp(req, res) {
           country: countryParam
         };
         // Log the exact request params (without revealing OTP) for debugging
-        console.log('Sending MSG91 v2/sendsms params (debug):', { mobilesLast10: mobile.slice(-10), mobilesFull: mobilesFull, mobilesForApi: mobilesForApi, sender: params.sender, route: params.route, country: params.country });
+        // console.log('Sending MSG91 v2/sendsms params (debug):', { mobilesLast10: mobile.slice(-10), mobilesFull: mobilesFull, mobilesForApi: mobilesForApi, sender: params.sender, route: params.route, country: params.country });
         const headers = { 'Accept': 'application/json' };
         const resp = await axios.get(msg91Url, { params, headers });
-        console.log('MSG91 sendsms status:', resp.status);
-        console.log('MSG91 sendsms response data:', resp.data);
-        console.log('MSG91 sendsms response headers:', resp.headers);
+        // console.log('MSG91 sendsms status:', resp.status);
+        // console.log('MSG91 sendsms response data:', resp.data);
+        // console.log('MSG91 sendsms response headers:', resp.headers);
         // v2/sendsms returns request id as string sometimes; store it
         const respData = resp.data || {};
         // if response is string like '3661686f6772...', store as request id
@@ -124,19 +124,19 @@ async function verifyOtp(req, res) {
     const normPhone = normalizePhoneForStore(rawPhone);
     if (!rawPhone || !otp) return res.status(400).json({ success: false, message: 'Phone and OTP are required' });
 
-    console.log('verifyOtp request:', { rawPhone, normPhone, otpProvided: String(otp).slice(0, 2) + '****' });
+    // console.log('verifyOtp request:', { rawPhone, normPhone, otpProvided: String(otp).slice(0, 2) + '****' });
 
     let record = await getLatestValidOtp(normPhone);
     if (!record) {
       // Fallbacks: try last 10, try without country prefix, and try a raw LIKE search
       const last10 = String(normPhone).slice(-10);
-      console.log('verifyOtp: primary lookup failed, trying fallbacks for', normPhone);
+      // console.log('verifyOtp: primary lookup failed, trying fallbacks for', normPhone);
       record = await getLatestValidOtp(last10);
       if (!record) {
         // try a manual LIKE query (ignore expiry to inspect rows)
         try {
           const [rows] = await pool.query('SELECT * FROM otps WHERE (phone = ? OR phone LIKE ? OR phone LIKE ?) ORDER BY id DESC LIMIT 5', [normPhone, `%${normPhone}%`, `%${last10}%`]);
-          console.log('verifyOtp: manual lookup rows (ignore expiry):', rows.map(r => ({ id: r.id, phone: r.phone, expires_at: r.expires_at, otp: r.otp })).slice(0, 10));
+          // console.log('verifyOtp: manual lookup rows (ignore expiry):', rows.map(r => ({ id: r.id, phone: r.phone, expires_at: r.expires_at, otp: r.otp })).slice(0, 10));
           // pick the first non-expired row if any
           for (const r of rows) {
             const expires = new Date(r.expires_at);
@@ -147,15 +147,15 @@ async function verifyOtp(req, res) {
         }
       }
       if (!record) {
-        console.log('verifyOtp: no record found for', normPhone);
+        // console.log('verifyOtp: no record found for', normPhone);
         // As a fallback for development/testing (and to handle small clock skews),
         // search recent OTP rows for this phone and try to match the provided OTP
         try {
           const [recentRows] = await pool.query('SELECT * FROM otps WHERE phone = ? OR phone LIKE ? OR phone LIKE ? ORDER BY id DESC LIMIT 20', [normPhone, `%${normPhone}%`, `%${normPhone.slice(-10)}%`]);
-          console.log('verifyOtp: recentRows count', recentRows.length);
+          // console.log('verifyOtp: recentRows count', recentRows.length);
           const matched = recentRows.find(r => String(r.otp) === String(otp));
           if (matched) {
-            console.log('verifyOtp: matched OTP in recent rows (ignoring expiry), id=', matched.id);
+            // console.log('verifyOtp: matched OTP in recent rows (ignoring expiry), id=', matched.id);
             record = matched;
           } else {
             return res.status(400).json({ success: false, message: 'No OTP requested for this number' });
@@ -187,9 +187,9 @@ async function verifyOtp(req, res) {
 
     // create and return new user + token
     try {
-      console.log('verifyOtp: creating new customer', { name, phone: normPhone });
+      // console.log('verifyOtp: creating new customer', { name, phone: normPhone });
       const newUser = await createCustomer({ name, phone: normPhone });
-      console.log('verifyOtp: created customer', newUser);
+      // console.log('verifyOtp: created customer', newUser);
 
       // User created, now delete OTP
       await deleteOtpById(record.id);

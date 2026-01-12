@@ -11,7 +11,7 @@ const razorpay = new Razorpay({
 async function createOrder(req, res) {
     try {
         const user_id = req.user.id;
-        const { payment_method } = req.body; // 'COD' or 'ONLINE' - Address removed
+        const { payment_method, address } = req.body; // 'COD' or 'ONLINE', + address
 
         // 1. Get cart items to calculate total
         const cartItems = await cartModel.getCartItems(user_id);
@@ -49,6 +49,7 @@ async function createOrder(req, res) {
                 payment_method: 'ONLINE',
                 payment_status: 'PENDING',
                 order_status: 'PENDING',
+                address,
                 razorpay_order_id: rzpOrder.id
             });
 
@@ -71,6 +72,7 @@ async function createOrder(req, res) {
                 payment_method: 'COD',
                 payment_status: 'PENDING',
                 order_status: 'CONFIRMED', // COD orders are confirmed immediately usually
+                address,
                 razorpay_order_id: null
             });
 

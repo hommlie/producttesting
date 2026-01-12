@@ -22,7 +22,7 @@ async function createOrder(orderData) {
             payment_method,
             payment_status || 'PENDING',
             order_status || 'PENDING',
-            null, // Address removed as per request
+            address ? JSON.stringify(address) : null,
             razorpay_order_id || null
         ]
     );
