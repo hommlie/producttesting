@@ -13,6 +13,14 @@ async function createOrder(req, res) {
         const user_id = req.user.id;
         const { payment_method, address } = req.body; // 'COD' or 'ONLINE', + address
 
+        // Bangalore pincode validation (Must start with 560)
+        if (!address || !address.pincode || !/^560\d{3}$/.test(address.pincode)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Currently, we only deliver to Bengaluru (Pincodes starting with 560). We apologize for the inconvenience.'
+            });
+        }
+
         // 1. Get cart items to calculate total
         const cartItems = await cartModel.getCartItems(user_id);
         if (!cartItems || cartItems.length === 0) {

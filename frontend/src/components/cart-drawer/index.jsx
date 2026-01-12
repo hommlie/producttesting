@@ -47,6 +47,12 @@ export default function CartDrawer({ isOpen, onClose, cartItems, itemsDetail, on
         location: ''
     });
     const [detectingLoc, setDetectingLoc] = useState(false);
+    const [showNoDeliveryPopup, setShowNoDeliveryPopup] = useState(false);
+
+    const isBangalorePincode = (pincode) => {
+        // Bangalore pincodes typically start with 560
+        return /^560\d{3}$/.test(pincode);
+    };
 
     const autoDetectLocation = () => {
         if (!("geolocation" in navigator)) {
@@ -91,6 +97,12 @@ export default function CartDrawer({ isOpen, onClose, cartItems, itemsDetail, on
             alert("Please fill required fields");
             return;
         }
+
+        if (!isBangalorePincode(formData.pincode)) {
+            setShowNoDeliveryPopup(true);
+            return;
+        }
+
         setAddress(formData);
         setShowAddressForm(false);
     };
@@ -415,6 +427,32 @@ export default function CartDrawer({ isOpen, onClose, cartItems, itemsDetail, on
                     </>
                 )}
             </div>
+
+            {/* No Delivery Popup */}
+            {showNoDeliveryPopup && (
+                <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-300">
+                    <div className="bg-white rounded-3xl p-8 max-w-sm w-full shadow-2xl transform animate-in zoom-in-95 duration-300 text-center">
+                        <div className="w-20 h-20 bg-rose-50 rounded-full flex items-center justify-center mx-auto mb-6">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-rose-500">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                                <circle cx="12" cy="10" r="3" />
+                                <line x1="15" y1="13" x2="9" y2="7" />
+                                <line x1="9" y1="13" x2="15" y2="7" />
+                            </svg>
+                        </div>
+                        <h3 className="text-2xl font-extrabold text-gray-900 mb-3 tracking-tight">Service Unavailable</h3>
+                        <p className="text-gray-500 text-sm mb-8 leading-relaxed px-2">
+                            Currently, we are not delivering to this location. We apologize for the inconvenience and will be expanding to your area very soon!
+                        </p>
+                        <button
+                            onClick={() => setShowNoDeliveryPopup(false)}
+                            className="w-full bg-gray-900 text-white font-bold py-4 rounded-2xl hover:bg-gray-800 transition-all active:scale-95 shadow-lg"
+                        >
+                            Got it, thanks!
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
