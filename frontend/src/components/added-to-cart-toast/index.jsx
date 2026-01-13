@@ -24,7 +24,7 @@ export default function AddedToCartToast({ isOpen, onClose, product, onGoToCart 
     const getImageUrl = (imagePath) => {
         if (!imagePath) return '';
         if (imagePath.startsWith('http')) return imagePath;
-        const baseUrl = import.meta.env.VITE_IMG_BASE_URL || 'http://localhost:4000';
+        const baseUrl = import.meta.env.VITE_IMG_BASE_URL || 'http://localhost:5000';
         return `${baseUrl}/uploads/${imagePath}`;
     };
 

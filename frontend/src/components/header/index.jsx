@@ -17,8 +17,17 @@ const ChevronDownIcon = () => (
 
 import { getCategories, sendOtp, verifyOtp } from '../../services/api';
 
-export default function Header({ cartCount, onCategorySelect, selectedCategory, onCartClick }) {
+export default function Header({ cartCount, onCategorySelect, selectedCategory, onCartClick, isTransparent = false }) {
     const navigate = useNavigate();
+    const [scrolled, setScrolled] = useState(false);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 20);
+        };
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
     const [categories, setCategories] = useState([]);
     const [showLogin, setShowLogin] = useState(false);
     const [phone, setPhone] = useState('');
@@ -120,112 +129,147 @@ export default function Header({ cartCount, onCategorySelect, selectedCategory, 
 
     return (
         <>
-            <div className="bg-white sticky top-0 z-50 shadow-sm font-sans">
-                {/* Top Bar */}
-                <div className="max-w-[1400px] mx-auto px-4 h-20 flex items-center justify-between gap-4">
 
-                    {/* Brand & Delivery */}
-                    <div className="flex items-center gap-6 min-w-fit">
-                        {/* Logo */}
-                        <div className="flex flex-col leading-none cursor-pointer" onClick={() => navigate('/')}>
-                            <img
-                                src="/hommlieloogo.png"
-                                alt="Hommlie Logo"
-                                className="h-10 w-auto"
-                            />
+            <div className={`z-50 font-sans transition-all duration-500 ${isTransparent ? 'fixed top-0 left-0 right-0' : 'sticky top-0'}`}>
+                {/* Top Bar - Dynamic Background & Height */}
+                <div className={`transition-all duration-500 overflow-hidden ${isTransparent && scrolled ? 'h-0 opacity-0' : 'h-16 md:h-20 opacity-100'} ${isTransparent && !scrolled ? 'bg-transparent shadow-none' : 'bg-white shadow-sm'}`}>
+                    <div className="max-w-[1600px] mx-auto px-4 md:px-8 h-full flex items-center justify-between gap-3 lg:gap-12">
+
+                        {/* Brand & Delivery */}
+                        <div className="flex items-center gap-3 md:gap-6 min-w-fit">
+                            {/* Logo */}
+                            <div className="flex flex-col leading-none cursor-pointer group" onClick={() => navigate('/')}>
+                                <img
+                                    src="/hommlieloogo.png"
+                                    alt="Hommlie Logo"
+                                    className={`h-8 md:h-11 w-auto transition-all duration-300 ${isTransparent && !scrolled ? 'brightness-0 invert' : ''}`}
+                                />
+                            </div>
+
+                            {/* Delivery Info */}
+                            <div className="hidden md:flex flex-col border-l border-gray-100 pl-6 cursor-pointer group">
+                                <div className="flex items-center gap-1.5">
+                                    <span className={`font-black text-xs uppercase tracking-wider ${isTransparent && !scrolled ? 'text-white' : 'text-gray-900'}`}>Delivery in 24 hrs</span>
+                                </div>
+                                <div className={`flex items-center gap-1 text-sm font-semibold transition-colors ${isTransparent && !scrolled ? 'text-white/80' : 'text-gray-500 group-hover:text-primary'}`}>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className={isTransparent && !scrolled ? 'text-accent' : 'text-primary'}><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z" /><circle cx="12" cy="10" r="3" /></svg>
+                                    <span className="truncate max-w-[180px]" title={locationName}>{locationName}</span>
+                                    <ChevronDownIcon />
+                                </div>
+                            </div>
                         </div>
 
-                        {/* Delivery Location Divider */}
-                        <div className="h-8 w-[1px] bg-gray-200 mx-2 hidden md:block"></div>
-
-                        {/* Delivery Info */}
-                        <div className="hidden md:flex flex-col">
-                            <div className="flex items-center gap-1">
-                                <span className="font-extrabold text-sm text-gray-900">10 minutes</span>
-                            </div>
-                            <div className="flex items-center gap-1 text-xs text-gray-500 cursor-pointer hover:text-indigo-600 transition-colors">
-                                <span className="truncate max-w-[150px]" title={locationName}>{locationName}</span>
-                                <ChevronDownIcon />
+                        {/* Search Bar - Premium Centered */}
+                        <div className="flex-1 max-w-2xl px-2 hidden lg:block">
+                            <div className="relative group">
+                                <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                    <SearchIcon />
+                                </div>
+                                <input
+                                    type="text"
+                                    className={`block w-full pl-12 pr-4 py-3.5 border rounded-2xl text-[15px] transition-all duration-300 shadow-sm ${isTransparent && !scrolled ? 'bg-white/10 backdrop-blur-xl border-white/20 text-white placeholder-white/60 focus:bg-white/20' : 'bg-gray-50/80 border-gray-100/50 text-gray-900 focus:bg-white'}`}
+                                    placeholder='Search "termite spray" or "herbal pest controller"'
+                                />
+                                <div className="absolute inset-y-0 right-4 flex items-center opacity-0 group-focus-within:opacity-100 transition-opacity">
+                                    <span className="text-[10px] font-bold text-gray-400 bg-gray-100 px-1.5 py-0.5 rounded border border-gray-200">ESC</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Search Bar - Centered & Wide */}
-                    <div className="flex-1 max-w-3xl px-4 hidden lg:block">
-                        <div className="relative group">
-                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                                <SearchIcon />
-                            </div>
-                            <input
-                                type="text"
-                                className="block w-full pl-11 pr-4 py-3 bg-gray-50 border border-gray-100 rounded-xl text-sm placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:bg-white transition-all shadow-sm"
-                                placeholder='Search for "termite spray"'
-                            />
-                        </div>
-                    </div>
-
-                    {/* Right Actions */}
-                    <div className="flex items-center gap-8 min-w-fit">
-                        {user ? (
-                            <div className="hidden sm:flex items-center gap-3">
-                                <span className="text-gray-900 font-bold text-sm truncate max-w-[150px]">
-                                    {user.name}
-                                </span>
-                                <button
-                                    onClick={() => {
-                                        localStorage.removeItem('HommlieUserjwtToken');
-                                        localStorage.removeItem('HommlieUserData');
-                                        setUser(null);
-                                        window.location.reload();
-                                    }}
-                                    className="text-xs font-medium text-red-500 hover:text-red-700 border border-red-200 px-2 py-1 rounded hover:bg-red-50 transition-colors"
-                                >
-                                    Logout
+                        {/* Right Actions */}
+                        <div className="flex items-center gap-4 lg:gap-8 min-w-fit">
+                            {user ? (
+                                <div className="hidden sm:flex items-center gap-4">
+                                    <div className={`flex flex-col items-end ${isTransparent && !scrolled ? 'text-white' : 'text-gray-900'}`}>
+                                        <span className="font-black text-[10px] uppercase tracking-tight truncate max-w-[120px] drop-shadow-sm">
+                                            {user.name}
+                                        </span>
+                                        <button
+                                            onClick={() => {
+                                                localStorage.removeItem('HommlieUserjwtToken');
+                                                localStorage.removeItem('HommlieUserData');
+                                                setUser(null);
+                                                window.location.reload();
+                                            }}
+                                            className="text-[9px] font-black text-red-500 hover:text-red-400 transition-colors uppercase tracking-[0.2em] drop-shadow-sm"
+                                        >
+                                            Logout
+                                        </button>
+                                    </div>
+                                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-black border-2 transition-all duration-300 ${isTransparent && !scrolled ? 'bg-white/20 text-white border-white/40 backdrop-blur-md' : 'bg-primary/10 text-primary border-primary/20'}`}>
+                                        {user.name?.[0]?.toUpperCase()}
+                                    </div>
+                                </div>
+                            ) : (
+                                <button onClick={() => setShowLogin(true)} className={`hidden sm:flex items-center gap-2.5 font-bold text-sm tracking-tight transition-all duration-300 hover:scale-105 active:scale-95`}>
+                                    <div className={`w-10 h-10 flex items-center justify-center rounded-xl transition-all duration-300 shadow-sm ${isTransparent && !scrolled ? 'bg-white/10 text-white border border-white/10' : 'bg-gray-50 text-gray-700'}`}>
+                                        <UserIcon />
+                                    </div>
+                                    <span className={`uppercase tracking-widest text-[10px] font-black ${isTransparent && !scrolled ? 'text-white drop-shadow-md' : 'text-gray-900'}`}>Login</span>
                                 </button>
-                            </div>
-                        ) : (
-                            <button onClick={() => setShowLogin(true)} className="hidden sm:flex items-center gap-2 text-gray-600 hover:text-gray-900 font-medium text-sm">
-                                <UserIcon />
-                                <span>Login</span>
-                            </button>
-                        )}
-
-                        <button
-                            onClick={onCartClick}
-                            className="flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm hover:bg-indigo-700 transition-all shadow-md shadow-indigo-100"
-                        >
-                            <CartIcon />
-                            <span>My Cart</span>
-                            {cartCount > 0 && (
-                                <span className="ml-1 bg-white/20 px-2 py-0.5 rounded-full text-xs">
-                                    {cartCount}
-                                </span>
                             )}
-                        </button>
+
+                            <button
+                                onClick={onCartClick}
+                                className="group flex items-center gap-1.5 md:gap-2.5 bg-primary text-white pl-3 md:pl-5 pr-1 md:pr-1.5 py-1 md:py-1.5 rounded-xl md:rounded-2xl font-bold text-sm hover:bg-primary-dark transition-all duration-300 shadow-lg shadow-primary/20 active:scale-95"
+                            >
+                                <span className="uppercase tracking-widest text-[11px] hidden xl:inline">My Cart</span>
+                                <div className="flex items-center gap-1.5 md:gap-2 bg-white/20 px-2 md:px-4 py-1.5 md:py-2 rounded-lg md:rounded-xl backdrop-blur-sm group-hover:bg-white/30 transition-colors">
+                                    <CartIcon />
+                                    {cartCount > 0 && (
+                                        <span className="font-black text-sm md:text-base">
+                                            {cartCount}
+                                        </span>
+                                    )}
+                                </div>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
-                {/* Secondary Navigation - Categories */}
-                <div className="border-t border-gray-100 bg-white">
-                    <div className="max-w-[1400px] mx-auto px-4">
-                        <div className="flex items-center gap-8 overflow-x-auto py-3 scrollbar-hide">
-                            {navItems.map((item) => (
+                {/* Secondary Navigation - Settle at top on scroll */}
+                <div className={`transition-all duration-500 sticky top-0 z-40 overflow-x-auto whitespace-nowrap scrollbar-hide ${isTransparent && !scrolled ? 'bg-transparent' : 'bg-white/95 backdrop-blur-xl shadow-[0_4px_20px_-5px_rgba(0,0,0,0.1)] border-b border-gray-100'}`}>
+                    <div className="max-w-[1600px] mx-auto">
+                        <div className="flex items-center justify-between gap-2 md:gap-4 px-2 md:px-4 lg:pl-10 pr-2 md:pr-4">
+                            <div className="flex items-center gap-4 md:gap-10 overflow-x-auto py-2 md:py-2.5 scrollbar-hide flex-1">
+                                {navItems.map((item) => (
+                                    <button
+                                        key={item.name}
+                                        onClick={() => handleCategoryClick(item.name)}
+                                        className={`flex-shrink-0 flex items-center gap-1.5 md:gap-2.5 text-[9px] md:text-[10px] font-black uppercase tracking-[0.15em] md:tracking-[0.2em] transition-all relative py-1.5 md:py-2 ${selectedCategory === item.name
+                                            ? (isTransparent && !scrolled ? 'text-white' : 'text-gray-900')
+                                            : (isTransparent && !scrolled ? 'text-white/70 hover:text-white' : 'text-gray-600 hover:text-gray-900')
+                                            }`}
+                                    >
+                                        <span className={`text-sm md:text-base filter transition-all duration-300 ${selectedCategory === item.name ? 'grayscale-0 scale-110 drop-shadow-md' : 'grayscale opacity-60'}`}>{item.icon}</span>
+                                        <span className="whitespace-nowrap">{item.name}</span>
+                                        {selectedCategory === item.name && (
+                                            <div className={`absolute bottom-0 left-0 right-0 h-0.5 md:h-1 rounded-t-full transition-all duration-300 ${isTransparent && !scrolled ? 'bg-white shadow-[0_-2px_8px_rgba(255,255,255,0.4)]' : 'bg-primary shadow-[0_-2px_8px_rgba(99,102,241,0.4)]'}`}></div>
+                                        )}
+                                    </button>
+                                ))}
+                                {/* Add padding element for better scroll */}
+                                <div className="w-4 flex-shrink-0 md:hidden"></div>
+                            </div>
+
+                            {/* Sticky Cart - Visible on scroll only when top bar is hidden */}
+                            {scrolled && isTransparent && (
                                 <button
-                                    key={item.name}
-                                    onClick={() => handleCategoryClick(item.name)}
-                                    className={`flex-shrink-0 flex items-center gap-2 text-sm font-medium transition-colors whitespace-nowrap ${selectedCategory === item.name
-                                        ? 'text-indigo-600 font-bold border-b-2 border-indigo-600 pb-0.5'
-                                        : 'text-gray-500 hover:text-gray-800'
-                                        }`}
+                                    onClick={onCartClick}
+                                    className="flex-shrink-0 flex items-center gap-1.5 md:gap-2 bg-primary text-white px-2 md:px-4 py-1.5 rounded-lg md:rounded-xl font-bold text-[9px] md:text-[10px] hover:bg-primary-dark transition-all duration-300 shadow-lg shadow-primary/20 active:scale-95 my-1.5 md:my-2 uppercase tracking-widest"
                                 >
-                                    <span className="text-lg opacity-80">{item.icon}</span>
-                                    {item.name}
+                                    <div className="flex items-center gap-1 md:gap-1.5 pt-0.5">
+                                        <CartIcon />
+                                        {cartCount > 0 && <span className="font-black text-xs">{cartCount}</span>}
+                                    </div>
+                                    <span className="hidden sm:inline">My Cart</span>
                                 </button>
-                            ))}
+                            )}
                         </div>
                     </div>
                 </div>
             </div>
+
             {showLogin && (
                 <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
                     <div className="bg-white rounded-xl p-6 w-full max-w-sm">
@@ -303,7 +347,8 @@ export default function Header({ cartCount, onCategorySelect, selectedCategory, 
                         )}
                     </div>
                 </div>
-            )}
+            )
+            }
         </>
     );
 }

@@ -13,7 +13,7 @@ export default function CategoryPage({ cart, addToCart, removeFromCart, onCartCl
     const getImageUrl = (imagePath) => {
         if (!imagePath) return '';
         if (imagePath.startsWith('http')) return imagePath;
-        const baseUrl = import.meta.env.VITE_IMG_BASE_URL || 'http://localhost:4000';
+        const baseUrl = import.meta.env.VITE_IMG_BASE_URL || 'http://localhost:5000';
         return `${baseUrl}/uploads/${imagePath}`;
     };
 
@@ -54,63 +54,89 @@ export default function CategoryPage({ cart, addToCart, removeFromCart, onCartCl
     }
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-[#fcfcfd]">
             <Header
                 cartCount={cartTotalItems}
                 onCartClick={onCartClick}
                 selectedCategory={categoryName}
             />
 
-            <div className="max-w-[1400px] mx-auto flex">
+            <div className="max-w-[1400px] mx-auto flex gap-6 md:gap-8 px-2 md:px-4 pb-20 md:pb-24">
                 {/* Left Sidebar - Subcategories */}
-                <aside className="w-64 border-r border-gray-100 min-h-[calc(100vh-120px)] p-4">
-                    <div className="space-y-4">
+                <aside className="w-72 hidden lg:block sticky top-[100px] h-[calc(100vh-120px)] overflow-y-auto scrollbar-hide py-8">
+                    <div className="space-y-3">
+                        <div className="px-4 mb-6">
+                            <h2 className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-400">Categories</h2>
+                            <div className="h-0.5 w-8 bg-primary/20 mt-2"></div>
+                        </div>
                         {subcategories.map(sub => (
                             <button
                                 key={sub.id}
                                 onClick={() => navigate(`/category/${categoryName}/${sub.subcategory_name}`)}
-                                className={`w-full flex items-center gap-4 p-3 rounded-xl transition-all ${activeSub === sub.subcategory_name
-                                    ? 'bg-purple-50 text-purple-700 border-r-4 border-purple-600'
-                                    : 'text-gray-600 hover:bg-gray-50'
+                                className={`w-full flex items-center gap-4 p-3 rounded-2xl transition-all duration-300 group ${activeSub === sub.subcategory_name
+                                    ? 'bg-white shadow-premium border-primary/10 border text-primary ring-1 ring-primary/5'
+                                    : 'text-gray-500 hover:bg-white hover:shadow-sm'
                                     }`}
                             >
-                                <div className="w-12 h-12 bg-gray-100 rounded-lg overflow-hidden flex-shrink-0">
+                                <div className={`w-12 h-12 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-colors ${activeSub === sub.subcategory_name ? 'border-primary/20' : 'border-transparent bg-gray-50'}`}>
                                     {sub.subcategory_image ? (
                                         <img
                                             src={getImageUrl(sub.subcategory_image)}
                                             alt={sub.subcategory_name}
-                                            className="w-full h-full object-cover"
+                                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                         />
                                     ) : (
-                                        <div className="w-full h-full bg-purple-100 flex items-center justify-center text-purple-400 font-bold">
+                                        <div className="w-full h-full bg-primary/5 flex items-center justify-center text-primary font-black text-xs uppercase tracking-tighter">
                                             {sub.subcategory_name?.[0] || 'S'}
                                         </div>
                                     )}
                                 </div>
-                                <span className="font-bold text-sm text-left leading-tight">{sub.subcategory_name}</span>
+                                <span className={`font-bold text-xs uppercase tracking-widest text-left leading-tight transition-colors ${activeSub === sub.subcategory_name ? 'text-primary' : 'group-hover:text-gray-900'}`}>{sub.subcategory_name}</span>
                             </button>
                         ))}
                     </div>
                 </aside>
 
                 {/* Main Content */}
-                <main className="flex-1 p-8 bg-gray-50/30">
-                    <div className="mb-8">
-                        <div className="flex items-center gap-2 text-xs text-gray-400 mb-4">
-                            <span>Home</span>
-                            <span>›</span>
+                <main className="flex-1 py-8">
+                    <div className="mb-10">
+                        {/* Breadcrumbs */}
+                        <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-400 mb-6">
+                            <span className="cursor-pointer hover:text-primary transition-colors" onClick={() => navigate('/')}>Home</span>
+                            <span className="opacity-30">/</span>
                             <span>{categoryName}</span>
                             {subcategoryName && (
                                 <>
-                                    <span>›</span>
-                                    <span className="text-gray-900 font-bold">{subcategoryName}</span>
+                                    <span className="opacity-30">/</span>
+                                    <span className="text-gray-900">{subcategoryName}</span>
                                 </>
                             )}
                         </div>
-                        <h1 className="text-2xl font-black text-gray-900 mb-6">Buy {activeSub || categoryName} Online</h1>
+
+                        {/* Title Section */}
+                        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 md:gap-6 mb-8 md:mb-12">
+                            <div>
+                                <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 tracking-tight leading-none mb-2 md:mb-3">
+                                    {activeSub || categoryName}
+                                </h1>
+                                <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">
+                                    {filteredProducts.length} Premium Products Found
+                                </p>
+                            </div>
+
+                            {/* Simple Filter Placeholder */}
+                            <div className="flex items-center gap-2 md:gap-3">
+                                <span className="text-[10px] font-black uppercase tracking-widest text-gray-400">Sort by:</span>
+                                <select className="bg-white border border-gray-100 rounded-lg md:rounded-xl px-3 md:px-4 py-1.5 md:py-2 text-xs font-bold text-gray-700 outline-none focus:ring-2 focus:ring-primary/20 transition-all shadow-sm">
+                                    <option>Relevance</option>
+                                    <option>Newest First</option>
+                                    <option>Price: Low to High</option>
+                                </select>
+                            </div>
+                        </div>
 
                         {/* Product Grid */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-8">
                             {filteredProducts.map(product => (
                                 <ProductCard
                                     key={product.id}
@@ -121,9 +147,18 @@ export default function CategoryPage({ cart, addToCart, removeFromCart, onCartCl
                                 />
                             ))}
                         </div>
+
                         {filteredProducts.length === 0 && (
-                            <div className="py-20 text-center text-gray-400">
-                                No products found in this category.
+                            <div className="py-32 flex flex-col items-center justify-center bg-white rounded-[3rem] shadow-premium border border-dashed border-gray-200">
+                                <div className="text-6xl mb-6 grayscale opacity-20">🛒</div>
+                                <h3 className="text-lg font-black text-gray-900 mb-2 uppercase tracking-widest">No Products Found</h3>
+                                <p className="text-gray-400 text-xs font-bold uppercase tracking-widest">Try adjusting your filters or category selection</p>
+                                <button
+                                    onClick={() => navigate('/')}
+                                    className="mt-8 px-8 py-3 bg-primary text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-lg shadow-primary/20 hover:scale-105 active:scale-95 transition-all"
+                                >
+                                    Go Home
+                                </button>
                             </div>
                         )}
                     </div>
@@ -140,7 +175,7 @@ const ProductCard = ({ product, cart, addToCart, removeFromCart }) => {
     const getImageUrl = (imagePath) => {
         if (!imagePath) return '';
         if (imagePath.startsWith('http')) return imagePath;
-        const baseUrl = import.meta.env.VITE_IMG_BASE_URL || 'http://localhost:4000';
+        const baseUrl = import.meta.env.VITE_IMG_BASE_URL || 'http://localhost:5000';
         return `${baseUrl}/uploads/${imagePath}`;
     };
 
@@ -151,54 +186,71 @@ const ProductCard = ({ product, cart, addToCart, removeFromCart }) => {
     }, [product.product_image]);
 
     return (
-        <div className="bg-white rounded-2xl border border-gray-100 p-4 hover:shadow-xl transition-all group flex flex-col h-full shadow-sm relative">
+        <div className="bg-white rounded-[2rem] border border-gray-100 p-3 hover:shadow-hover hover:border-primary/20 transition-all duration-500 flex flex-col h-full relative group shadow-premium">
+            {/* Ad Tag or Discount Tag */}
+            <div className="absolute top-4 left-4 z-10 flex flex-col gap-2">
+                <div className="bg-blue-600 text-white text-[9px] font-black px-2 py-0.5 rounded-md shadow-lg uppercase tracking-widest w-fit">Ad</div>
+                {product.product_discount_price > 0 && (
+                    <div className="bg-accent text-white text-[9px] font-black px-2 py-0.5 rounded-md shadow-lg uppercase tracking-widest w-fit">
+                        Sale
+                    </div>
+                )}
+            </div>
+
             <div
-                className="aspect-square bg-gray-50 rounded-xl mb-4 overflow-hidden flex items-center justify-center p-4 cursor-pointer"
+                className="aspect-square rounded-[1.5rem] bg-gray-50/50 mb-4 relative overflow-hidden flex items-center justify-center p-6 cursor-pointer group-hover:bg-white transition-colors duration-500"
                 onClick={() => navigate(`/product/${slugify(product.product_name)}`)}
             >
                 <img
                     src={imgSrc}
                     alt={product.product_name}
-                    className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500"
+                    className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-700 ease-out"
                     onError={(e) => {
                         if (imgSrc !== '') e.target.src = 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?w=500&q=80';
                     }}
                 />
             </div>
 
-            <div className="flex-1">
-                <h3 className="font-bold text-gray-800 text-sm mb-2 line-clamp-2 h-10">{product.product_name}</h3>
-                <div className="text-gray-400 text-xs mb-4">{product.estimated_time || '15 mins'}</div>
+            <div className="flex-1 flex flex-col px-1">
+                <h3 className="font-bold text-gray-800 text-sm leading-tight mb-1 cursor-pointer hover:text-primary transition-colors line-clamp-2 h-10"
+                    onClick={() => navigate(`/product/${slugify(product.product_name)}`)}
+                >
+                    {product.product_name}
+                </h3>
+                <div className="flex items-center gap-1.5 mb-4">
+                    <svg className="w-3 h-3 text-accent" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" /></svg>
+                    <p className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">{product.estimated_time || '24 hrs'}</p>
+                </div>
 
-                <div className="flex items-center justify-between mt-auto">
+                <div className="mt-auto flex items-center justify-between gap-2">
                     <div className="flex flex-col">
                         {product.product_discount_price > 0 && (
-                            <span className="text-[10px] text-gray-400 line-through">₹{product.product_price}</span>
+                            <span className="text-[10px] text-gray-400 line-through font-medium">₹{product.product_price}</span>
                         )}
-                        <span className="font-bold text-gray-900 text-base">
+                        <span className="font-black text-gray-900 text-lg tracking-tight">
                             ₹{product.product_discount_price > 0 ? product.product_discount_price : product.product_price}
                         </span>
                     </div>
 
-                    <div className="relative">
+                    <div className="w-24 px-1">
                         {qty === 0 ? (
                             <button
                                 onClick={() => addToCart(product.id)}
-                                className="px-6 py-2 border border-pink-500 text-pink-500 rounded-lg font-bold text-xs hover:bg-pink-50 transition-colors uppercase"
+                                className="w-full py-2 rounded-xl border-2 border-primary/10 text-primary font-black text-[11px] bg-primary/5 hover:bg-primary hover:text-white hover:border-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 uppercase tracking-widest"
                             >
                                 Add
                             </button>
                         ) : (
-                            <div className="flex items-center bg-pink-500 text-white rounded-lg px-2 py-1 shadow-lg shadow-pink-100">
-                                <button onClick={() => removeFromCart(product.id)} className="w-6 h-8 flex items-center justify-center font-bold">-</button>
-                                <span className="w-6 text-center font-bold text-xs">{qty}</span>
-                                <button onClick={() => addToCart(product.id)} className="w-6 h-8 flex items-center justify-center font-bold">+</button>
+                            <div className="flex items-center w-full bg-primary text-white rounded-xl h-9 shadow-lg shadow-primary/20 overflow-hidden">
+                                <button onClick={() => removeFromCart(product.id)} className="w-8 h-full flex items-center justify-center hover:bg-primary-dark transition-colors font-black text-lg">-</button>
+                                <span className="flex-1 text-center font-black text-xs">{qty}</span>
+                                <button onClick={() => addToCart(product.id)} className="w-8 h-full flex items-center justify-center hover:bg-primary-dark transition-colors font-black text-lg">+</button>
                             </div>
                         )}
                     </div>
                 </div>
             </div>
-            <div className="absolute top-2 left-2 bg-blue-600 text-[10px] text-white px-2 py-0.5 rounded font-bold uppercase">Ad</div>
         </div>
     );
 };
+
