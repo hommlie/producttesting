@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../header';
 import { getSubcategories, getProducts } from '../../services/api';
 import { slugify } from '../../utils/slugify';
+import { getImageUrl } from '../../utils/imageUrl';
 
 export default function CategoryPage({ cart, addToCart, removeFromCart, onCartClick, cartTotalItems }) {
     const { categoryName, subcategoryName } = useParams();
@@ -10,12 +11,7 @@ export default function CategoryPage({ cart, addToCart, removeFromCart, onCartCl
     const [subcategories, setSubcategories] = useState([]);
     const [products, setProducts] = useState([]);
     const [loading, setLoading] = useState(true);
-    const getImageUrl = (imagePath) => {
-        if (!imagePath) return '';
-        if (imagePath.startsWith('http')) return imagePath;
-        const baseUrl = import.meta.env.VITE_IMG_BASE_URL || 'http://localhost:5000';
-        return `${baseUrl}/uploads/${imagePath}`;
-    };
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -84,6 +80,7 @@ export default function CategoryPage({ cart, addToCart, removeFromCart, onCartCl
                                             src={getImageUrl(sub.subcategory_image)}
                                             alt={sub.subcategory_name}
                                             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                            onError={(e) => e.target.style.display = 'none'}
                                         />
                                     ) : (
                                         <div className="w-full h-full bg-primary/5 flex items-center justify-center text-primary font-black text-xs uppercase tracking-tighter">
@@ -172,12 +169,7 @@ const ProductCard = ({ product, cart, addToCart, removeFromCart }) => {
     const qty = cart?.[product.id] || 0;
     const navigate = useNavigate();
 
-    const getImageUrl = (imagePath) => {
-        if (!imagePath) return '';
-        if (imagePath.startsWith('http')) return imagePath;
-        const baseUrl = import.meta.env.VITE_IMG_BASE_URL || 'http://localhost:5000';
-        return `${baseUrl}/uploads/${imagePath}`;
-    };
+
 
     const [imgSrc, setImgSrc] = useState(getImageUrl(product.product_image));
 
@@ -205,9 +197,7 @@ const ProductCard = ({ product, cart, addToCart, removeFromCart }) => {
                     src={imgSrc}
                     alt={product.product_name}
                     className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-700 ease-out"
-                    onError={(e) => {
-                        if (imgSrc !== '') e.target.src = 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?w=500&q=80';
-                    }}
+
                 />
             </div>
 

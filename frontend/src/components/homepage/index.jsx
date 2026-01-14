@@ -3,13 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import Header from '../header';
 import { getProducts } from '../../services/api';
 import { slugify } from '../../utils/slugify';
+import { getImageUrl } from '../../utils/imageUrl';
 
-const getImageUrl = (imagePath) => {
-  if (!imagePath) return '';
-  if (imagePath.startsWith('http')) return imagePath;
-  const baseUrl = import.meta.env.VITE_IMG_BASE_URL || 'http://localhost:5000';
-  return `${baseUrl}/uploads/${imagePath}`;
-};
+
 
 const ProductCard = ({ product, cart, addToCart, removeFromCart }) => {
   const qty = cart?.[product.id] || 0;
@@ -36,7 +32,6 @@ const ProductCard = ({ product, cart, addToCart, removeFromCart }) => {
         <img
           src={imgSrc}
           alt={product.product_name}
-          onError={() => setImgSrc('https://images.unsplash.com/photo-1584622050111-993a426fbf0a?w=500&q=80')}
           className="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-700 ease-out"
         />
       </div>
@@ -291,8 +286,8 @@ export default function Homepage({ onProductClick, cart, addToCart, removeFromCa
                     <img
                       src={getImageUrl(cat.icon)}
                       alt={cat.name}
-                      onError={(e) => e.target.src = 'https://cdn-icons-png.flaticon.com/512/3081/3081840.png'}
-                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300 relative z-10"
+                      onError={(e) => e.target.style.display = 'none'}
+                      className="w-full h-full object-contain group-hover:scale-110 transition-transform duration-300 relative z-10"
                     />
                   </div>
                   <span className="text-[9px] md:text-[10px] font-black text-gray-600 uppercase tracking-wider group-hover:text-primary transition-colors text-center leading-tight">{cat.name}</span>

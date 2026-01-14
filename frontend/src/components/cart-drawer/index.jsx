@@ -18,6 +18,7 @@ const TargetIcon = () => (
 );
 
 import { createOrderApi, verifyPaymentApi } from '../../services/api';
+import { getImageUrl } from '../../utils/imageUrl';
 
 const loadRazorpay = () => {
     return new Promise((resolve) => {
@@ -122,12 +123,7 @@ export default function CartDrawer({ isOpen, onClose, cartItems, itemsDetail, on
 
     if (!isVisible && !isOpen) return null;
 
-    const getImageUrl = (imagePath) => {
-        if (!imagePath) return '';
-        if (imagePath.startsWith('http')) return imagePath;
-        const baseUrl = import.meta.env.VITE_IMG_BASE_URL || 'http://localhost:4000';
-        return `${baseUrl}/uploads/${imagePath}`;
-    };
+
 
     // Calculate totals - using database values
     const totalMRP = cartItems.reduce((sum, item) => {

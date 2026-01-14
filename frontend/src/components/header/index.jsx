@@ -112,7 +112,7 @@ export default function Header({ cartCount, onCategorySelect, selectedCategory, 
 
     const navItems = [
         { name: 'All', icon: '🛍️' },
-        ...categories.map(cat => ({
+        ...categories.filter(cat => cat.category_status === 1).map(cat => ({
             name: cat.category_name,
             icon: '🛍️'
         }))

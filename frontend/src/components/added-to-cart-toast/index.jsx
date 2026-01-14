@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { getImageUrl } from '../../utils/imageUrl';
 
 // Icons
 const CheckCircleIcon = () => (
@@ -21,12 +22,7 @@ export default function AddedToCartToast({ isOpen, onClose, product, onGoToCart 
 
     if (!isOpen || !product) return null;
 
-    const getImageUrl = (imagePath) => {
-        if (!imagePath) return '';
-        if (imagePath.startsWith('http')) return imagePath;
-        const baseUrl = import.meta.env.VITE_IMG_BASE_URL || 'http://localhost:5000';
-        return `${baseUrl}/uploads/${imagePath}`;
-    };
+
 
     const sellingPrice = (product.product_discount_price > 0) ? product.product_discount_price : product.product_price;
 
@@ -49,7 +45,6 @@ export default function AddedToCartToast({ isOpen, onClose, product, onGoToCart 
                         src={getImageUrl(product.product_image)}
                         alt={product.product_name}
                         className="max-w-full max-h-full object-contain"
-                        onError={(e) => e.target.src = 'https://images.unsplash.com/photo-1584622050111-993a426fbf0a?w=500&q=80'}
                     />
                 </div>
                 <div className="flex-1 min-w-0">

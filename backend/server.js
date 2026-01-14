@@ -15,7 +15,7 @@ const subcategoryRoutes = require('./routes/subcategoryRoutes');
 const productRoutes = require('./routes/productRoutes');
 const authRoutes = require('./routes/authRoutes');
 
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use('/api', categoryRoutes);
 app.use('/api', subcategoryRoutes);
 app.use('/api', productRoutes);

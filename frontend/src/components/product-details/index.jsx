@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Header from '../header';
 import { getProducts } from '../../services/api';
 import { slugify } from '../../utils/slugify';
+import { getImageUrl } from '../../utils/imageUrl';
 
 // Icons
 const ShareIcon = () => (
@@ -24,12 +25,7 @@ export default function ProductDetails({ cartCount, cart, addToCart, removeFromC
     const [isIntelExpanded, setIsIntelExpanded] = useState(false);
     const [imgSrc, setImgSrc] = useState('');
 
-    const getImageUrl = (imagePath) => {
-        if (!imagePath) return '';
-        if (imagePath.startsWith('http')) return imagePath;
-        const baseUrl = import.meta.env.VITE_IMG_BASE_URL || 'http://localhost:5000';
-        return `${baseUrl}/uploads/${imagePath}`;
-    };
+
 
     useEffect(() => {
         const fetchProduct = async () => {
@@ -81,7 +77,6 @@ export default function ProductDetails({ cartCount, cart, addToCart, removeFromC
                                 src={imgSrc}
                                 className="max-w-[70%] max-h-[70%] object-contain group-hover:scale-110 transition-transform duration-700 ease-out z-10"
                                 alt={product.product_name}
-                                onError={() => setImgSrc('https://images.unsplash.com/photo-1584622050111-993a426fbf0a?w=500&q=80')}
                             />
                             <button className="absolute top-8 right-8 w-12 h-12 bg-white rounded-2xl shadow-lg border border-gray-100 flex items-center justify-center hover:bg-primary hover:text-white transition-all duration-300 z-20 group/btn">
                                 <ShareIcon />
